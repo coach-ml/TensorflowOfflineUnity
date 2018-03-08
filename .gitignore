@@ -1,0 +1,7 @@
+Library/*
+.vs/*
+Temp/*
+UnityPackageManager/*
+ProjectSettings/*
+Assets/Graphs/*
+Assets/ML-Agents/*
