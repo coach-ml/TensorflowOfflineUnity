@@ -2,20 +2,16 @@
 using TensorFlow;
 using UnityEngine.UI;
 
-public class Tensor {
+public class ImageTensor {
 
     private string[] labels = { "tulips", "roses", "dandelion", "sunflowers", "daisy" };
-
-    public Text outputText;
-
+    
     private TextAsset graphModel;
     private TFGraph graph;
     private TFSession session;
 
     // Use this for initialization
-    public Tensor(Text output) {
-        this.outputText = output;
-
+    public ImageTensor() {
 #if UNITY_ANDROID
         TensorFlowSharp.Android.NativeBinding.Init();
 #endif
@@ -44,28 +40,18 @@ public class Tensor {
     /// </summary>
     /// <param name="tensor"></param>
     /// <param name="image"></param>
-    public void Parse(TFTensor tensor, byte[] image)
+    public string Parse(TFTensor tensor, byte[] image)
     {
-        outputText.text = "Parsing text";
         if (image != null)
         {
             var runner = session.GetRunner();
 
             if (graph == null)
-            {
-                outputText.text = "Graph is null";
-                return;
-            }
+                return "Graph is null";
             if (graph["input"] == null)
-            {
-                outputText.text = "Input is null";
-                return;
-            }
+                return "Input is null";
             if (graph["final_result"] == null)
-            {
-                outputText.text = "Output is null";
-                return;
-            }
+                return "Output is null";
 
             runner.AddInput(graph["input"][0], tensor);
             runner.Fetch(graph["final_result"][0]);
@@ -121,10 +107,10 @@ public class Tensor {
                 }
             }
 
-            outputText.text = $"{best * 100.0}% {labels[bestIdx]}\n";
+            return $"{(best * 100.0).ToString().Substring(0, 5)}% {labels[bestIdx]}\n";
         }
         else
-            outputText.text = "ERROR: Bytes null";
+            return "ERROR: Bytes null";
     }
 
 }

@@ -9,7 +9,7 @@ public class WebCamPanel : MonoBehaviour
     public Button CaptureButton;
     private WebCamTexture _webCamTexture;
 
-    private Tensor t;
+    private ImageTensor imageTensor;
 
     // Use this for initialization
     void Start()
@@ -17,7 +17,7 @@ public class WebCamPanel : MonoBehaviour
         StartCoroutine(SetupCoroutine());
         CaptureButton.onClick.AddListener(() => StartCoroutine(TakePhoto()) );
 
-        t = new Tensor(output);
+        imageTensor = new ImageTensor();
     }
 
     public IEnumerator TakePhoto()
@@ -33,7 +33,9 @@ public class WebCamPanel : MonoBehaviour
 
         //Encode to a PNG
         byte[] bytes = photo.EncodeToJPG();
-        t.Parse(tensor, bytes);
+        string result = imageTensor.Parse(tensor, bytes);
+
+        output.text = result;
     }
     
     private IEnumerator SetupCoroutine()
