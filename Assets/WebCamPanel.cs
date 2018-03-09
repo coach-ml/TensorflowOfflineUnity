@@ -18,7 +18,7 @@ public class WebCamPanel : MonoBehaviour
     void Start()
     {
         StartCoroutine(SetupCoroutine());
-        CaptureButton.onClick.AddListener(() => TakePhoto() );
+        CaptureButton.onClick.AddListener(() => StartCoroutine(TakePhoto()) );
 
         t = new Tensor(output);
     }
@@ -36,9 +36,10 @@ public class WebCamPanel : MonoBehaviour
         Texture2D photo = new Texture2D(_webCamTexture.width, _webCamTexture.height);
         photo.SetPixels(_webCamTexture.GetPixels());
         photo.Apply();
+        TextureTools.scale(photo, 128, 128);
 
         //Encode to a PNG
-        Color32[] bytes = Rotate(photo.GetPixels32(), photo.width, photo.height);
+        byte[] bytes = photo.EncodeToJPG();
         t.Parse(bytes);
         
         //Write out the PNG. Of course you have to substitute your_path for something sensible

@@ -333,7 +333,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Classifier.cs" />
     <Compile Include="Assets\ImageUtil.cs" />
     <Compile Include="Assets\Main.cs" />
     <Compile Include="Assets\TextureTools.cs" />

@@ -4,18 +4,17 @@ using UnityEngine;
 
 public static class ImageUtil
 {
-    private static int INPUT_SIZE = 128;
-    private static int IMAGE_MEAN = 128;
-    private static float IMAGE_STD = 1;
-
     public static TFTensor TransformInput(Color32[] pic)
     {
+        const int INPUT_SIZE = 224;
+        const int IMAGE_MEAN = 117;
+        const float IMAGE_STD = 1;
+
         float[] floatValues = new float[INPUT_SIZE * INPUT_SIZE * 3];
 
-        for (int i = 0; i < pic.Length; ++i)
+        for (int i = 0; i < pic.Length; i++)
         {
             var color = pic[i];
-
             floatValues[i * 3 + 0] = (color.r - IMAGE_MEAN) / IMAGE_STD;
             floatValues[i * 3 + 1] = (color.g - IMAGE_MEAN) / IMAGE_STD;
             floatValues[i * 3 + 2] = (color.b - IMAGE_MEAN) / IMAGE_STD;
@@ -24,6 +23,30 @@ public static class ImageUtil
         TFShape shape = new TFShape(1, INPUT_SIZE, INPUT_SIZE, 3);
 
         return TFTensor.FromBuffer(shape, floatValues, 0, floatValues.Length);
+    }
+
+    // Convert the image in filename to a Tensor suitable as input to the Inception model.
+    public static TFTensor CreateTensorFromImageFile(byte[] file, TFDataType destinationDataType = TFDataType.Float)
+    {
+        // DecodeJpeg uses a scalar String-valued tensor as input.
+        var tensor = TFTensor.CreateString(file);
+
+        TFOutput input, output;
+
+        // Construct a graph to normalize the image
+        using (var graph = MobileConstructGraphToNormalizeImage(out input, out output, destinationDataType))
+        {
+            // Execute that graph to normalize this one image
+            using (var session = new TFSession(graph))
+            {
+                var normalized = session.Run(
+                    inputs: new[] { input },
+                    inputValues: new[] { tensor },
+                    outputs: new[] { output });
+
+                return normalized[0];
+            }
+        }
     }
 
     private static TFGraph MobileConstructGraphToNormalizeImage(out TFOutput input, out TFOutput output, TFDataType destinationDataType = TFDataType.Float)

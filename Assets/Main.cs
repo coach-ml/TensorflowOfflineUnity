@@ -22,30 +22,31 @@ public class Tensor {
         TensorFlowSharp.Android.NativeBinding.Init();
 #endif
 
-        graphModel = Resources.Load("1.4/retrained") as TextAsset;
+        graphModel = Resources.Load("r1.4/retrained") as TextAsset;
 
         graph = new TFGraph();
         graph.Import(graphModel.bytes, "");
         session = new TFSession(graph);
     }
 
-    /// <summary>
-    /// For use on desktop
-    /// </summary>
-    /// <param name="image"></param>
-    public void Parse(byte[] image)
+    private TFTensor GenerateTensor(byte[] image)
     {
+#if UNITY_ANDROID
+        TFShape tshape = new TFShape(1, 128, 128, 3);
+        return TFTensor.FromBuffer(tshape, image, 0, image.Length);
+#endif
+#if UNITY_EDITOR_WIN
+        return ImageUtil.CreateTensorFromImageFile(image);
+#endif
     }
 
-    
-    public void Parse(Color32[] image)
+    public void Parse(byte[] image)
     {
         outputText.text = "Parsing text";
         if (image != null)
         {
-            var tensor = ImageUtil.TransformInput(image);
-
             var runner = session.GetRunner();
+            var tensor = GenerateTensor(image);
 
             if (graph == null)
             {
@@ -67,6 +68,8 @@ public class Tensor {
             runner.Fetch(graph["final_result"][0]);
 
             var output = runner.Run();
+
+            outputText.text = "Am I running?";
 
             var result = output[0];
             var rshape = result.Shape;
