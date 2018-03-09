@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,10 +18,9 @@ public class WebCamPanel : MonoBehaviour
     void Start()
     {
         StartCoroutine(SetupCoroutine());
-        CaptureButton.onClick.AddListener(() => StartCoroutine(TakePhoto()));
+        CaptureButton.onClick.AddListener(() => TakePhoto() );
 
         t = new Tensor(output);
-        t.Import();
     }
 
     public IEnumerator TakePhoto()
@@ -38,16 +38,16 @@ public class WebCamPanel : MonoBehaviour
         photo.Apply();
 
         //Encode to a PNG
-        byte[] bytes = photo.EncodeToPNG();
-        var outp = t.Parse(bytes);
-        output.text = "";
-        foreach (float f in outp)
-        {
-            output.text += f.ToString();
-        }
-
+        Color32[] bytes = Rotate(photo.GetPixels32(), photo.width, photo.height);
+        t.Parse(bytes);
+        
         //Write out the PNG. Of course you have to substitute your_path for something sensible
-        File.WriteAllBytes("photo.png", bytes);
+        // File.WriteAllBytes("photo.png", bytes);
+    }
+    
+    private Color32[] Rotate(Color32[] pixels, int width, int height)
+    {
+        return TextureTools.RotateImageMatrix(pixels, width, height, -90);
     }
 
     private IEnumerator SetupCoroutine()
