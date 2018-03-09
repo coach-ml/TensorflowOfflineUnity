@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using TensorFlow;
 using UnityEngine.UI;
 
@@ -36,17 +34,22 @@ public class Tensor {
         return TFTensor.FromBuffer(tshape, image, 0, image.Length);
 #endif
 #if UNITY_EDITOR_WIN
+        // TODO: This dosen't work
         return ImageUtil.CreateTensorFromImageFile(image);
 #endif
     }
 
-    public void Parse(byte[] image)
+    /// <summary>
+    /// Partially based off of: https://github.com/migueldeicaza/TensorFlowSharp/blob/master/Examples
+    /// </summary>
+    /// <param name="tensor"></param>
+    /// <param name="image"></param>
+    public void Parse(TFTensor tensor, byte[] image)
     {
         outputText.text = "Parsing text";
         if (image != null)
         {
             var runner = session.GetRunner();
-            var tensor = GenerateTensor(image);
 
             if (graph == null)
             {
@@ -68,9 +71,7 @@ public class Tensor {
             runner.Fetch(graph["final_result"][0]);
 
             var output = runner.Run();
-
-            outputText.text = "Am I running?";
-
+            
             var result = output[0];
             var rshape = result.Shape;
             if (result.NumDims != 2 || rshape[0] != 1)

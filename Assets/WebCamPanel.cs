@@ -1,7 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -25,32 +22,20 @@ public class WebCamPanel : MonoBehaviour
 
     public IEnumerator TakePhoto()
     {
-        // NOTE - you almost certainly have to do this here:
-
         yield return new WaitForEndOfFrame();
-
-        // it's a rare case where the Unity doco is pretty clear,
-        // http://docs.unity3d.com/ScriptReference/WaitForEndOfFrame.html
-        // be sure to scroll down to the SECOND long example on that doco page 
-
+        
         Texture2D photo = new Texture2D(_webCamTexture.width, _webCamTexture.height);
         photo.SetPixels(_webCamTexture.GetPixels());
         photo.Apply();
+        
         TextureTools.scale(photo, 128, 128);
+        var tensor = ImageUtil.TransformInput(photo.GetPixels32());
 
         //Encode to a PNG
         byte[] bytes = photo.EncodeToJPG();
-        t.Parse(bytes);
-        
-        //Write out the PNG. Of course you have to substitute your_path for something sensible
-        // File.WriteAllBytes("photo.png", bytes);
+        t.Parse(tensor, bytes);
     }
     
-    private Color32[] Rotate(Color32[] pixels, int width, int height)
-    {
-        return TextureTools.RotateImageMatrix(pixels, width, height, -90);
-    }
-
     private IEnumerator SetupCoroutine()
     {
         while (_webCamTexture == null)

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using TensorFlow;
 using UnityEngine;
 
@@ -6,22 +7,22 @@ public static class ImageUtil
 {
     public static TFTensor TransformInput(Color32[] pic)
     {
-        const int INPUT_SIZE = 224;
-        const int IMAGE_MEAN = 117;
-        const float IMAGE_STD = 1;
+        const int INPUT_SIZE = 128;
+        const int IMAGE_MEAN = 128;
+        const float IMAGE_STD = 128;
 
-        float[] floatValues = new float[INPUT_SIZE * INPUT_SIZE * 3];
-
+        float[] floatValues = new float[(INPUT_SIZE * INPUT_SIZE) * 3];
+        
         for (int i = 0; i < pic.Length; i++)
         {
             var color = pic[i];
-            floatValues[i * 3 + 0] = (color.r - IMAGE_MEAN) / IMAGE_STD;
+
+            floatValues[i * 3] = (color.r - IMAGE_MEAN) / IMAGE_STD;
             floatValues[i * 3 + 1] = (color.g - IMAGE_MEAN) / IMAGE_STD;
             floatValues[i * 3 + 2] = (color.b - IMAGE_MEAN) / IMAGE_STD;
         }
-
+        
         TFShape shape = new TFShape(1, INPUT_SIZE, INPUT_SIZE, 3);
-
         return TFTensor.FromBuffer(shape, floatValues, 0, floatValues.Length);
     }
 
