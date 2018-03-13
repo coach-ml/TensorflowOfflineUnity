@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class ImageTensor {
 
-    private string[] labels = { "tulips", "roses", "dandelion", "sunflowers", "daisy" };
+    private string[] labels = { "other", "daisy" };
     
     private TextAsset graphModel;
     private TFGraph graph;
@@ -16,7 +16,7 @@ public class ImageTensor {
         TensorFlowSharp.Android.NativeBinding.Init();
 #endif
 
-        graphModel = Resources.Load("r1.4/retrained") as TextAsset;
+        graphModel = Resources.Load("daisy_only/retrained") as TextAsset;
 
         graph = new TFGraph();
         graph.Import(graphModel.bytes, "");
