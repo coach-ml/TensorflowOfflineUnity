@@ -4,6 +4,7 @@ using UnityEngine.UI;
 
 public class ImageTensor {
 
+    // Labels are pulled from the generated labels.txt from our model training
     private string[] labels = { "other", "daisy" };
     
     private TextAsset graphModel;
@@ -16,7 +17,7 @@ public class ImageTensor {
         TensorFlowSharp.Android.NativeBinding.Init();
 #endif
 
-        graphModel = Resources.Load("daisy_only/retrained") as TextAsset;
+        graphModel = Resources.Load("r1.4/daisy_only/retrained") as TextAsset;
 
         graph = new TFGraph();
         graph.Import(graphModel.bytes, "");
