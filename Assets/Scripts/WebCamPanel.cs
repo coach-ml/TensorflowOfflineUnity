@@ -6,7 +6,6 @@ public class WebCamPanel : MonoBehaviour
 {
     public Text output;
     public RawImage image;
-    public Button CaptureButton;
     private WebCamTexture _webCamTexture;
 
     private ImageTensor imageTensor;
@@ -15,9 +14,12 @@ public class WebCamPanel : MonoBehaviour
     void Start()
     {
         StartCoroutine(SetupCoroutine());
-        CaptureButton.onClick.AddListener(() => StartCoroutine(TakePhoto()) );
-
         imageTensor = new ImageTensor();
+    }
+
+    void Update()
+    {
+        StartCoroutine(TakePhoto());
     }
 
     public IEnumerator TakePhoto()
